@@ -55,7 +55,8 @@ document.querySelector('.login-form').addEventListener('submit', async function(
     const response = await fetch('/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cedula, password })
+        body: JSON.stringify({ cedula, password }),
+        credentials: 'include'
     });
 
     const data = await response.json();
@@ -65,9 +66,6 @@ document.querySelector('.login-form').addEventListener('submit', async function(
         localStorage.setItem('token', data.token);
         localStorage.setItem('nombre', data.nombre);
         localStorage.setItem('rol', data.rol);
-
-        // También guarda el token en una cookie para que Spring lo pueda leer
-        document.cookie = `token=${data.token}; path=/;`;
 
         // Redirecciona según el rol
         switch (data.rol.toLowerCase()) {
