@@ -19,7 +19,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             text-align: center;
         }
-	.logout-btn {
+        .logout-btn {
             margin-top: 20px;
             width: 100%;
         }
@@ -29,10 +29,106 @@
     <div class="container">
         <h1>Bienvenido, Coordinación</h1>
         <p>Este es tu panel de acceso.</p>
-    
-	<button class="btn btn-danger logout-btn" onclick="logout()">Cerrar sesión</button>
+
+        <!-- Botón para abrir el modal -->
+        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#ideasModal" onclick="cargarIdeas()">Ver Ideas</button>
+
+        <!-- Botón para cerrar sesión -->
+        <button class="btn btn-danger logout-btn" onclick="logout()">Cerrar sesión</button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="ideasModal" tabindex="-1" aria-labelledby="ideasModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="ideasModalLabel">Ideas Registradas</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <button class="btn btn-success mb-3" onclick="crearIdea()">Crear nueva idea</button>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Título</th>
+                            <th>Descripción</th>
+                            <th>Tecnologías</th>
+                            <th>Fecha Propuesta</th>
+                            <th>Observaciones</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ideasTableBody">
+                        <!-- Aquí se llenan las filas dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="/js/logout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function cargarIdeas() {
+            fetch('/api/ideas')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('ideasTableBody');
+                    tableBody.innerHTML = ''; // Limpiar la tabla
+
+                    data.forEach(idea => {
+                        const row = `
+                            <tr>
+                                <td>${idea.titulo}</td>
+                                <td>${idea.descripcion}</td>
+                                <td>${idea.tecnologias}</td>
+                                <td>${idea.fechaPropuesta}</td>
+                                <td>${idea.observaciones}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="editarIdea('${idea.id}')">Editar</button>
+                                    <button class="btn btn-danger btn-sm" onclick="eliminarIdea('${idea.id}')">Eliminar</button>
+                                </td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Error al cargar las ideas:', error));
+        }
+
+        function crearIdea() {
+            // Aquí luego podrías abrir otro modal para crear una nueva idea
+            alert('Funcionalidad para crear idea próximamente...');
+        }
+
+        function editarIdea(id) {
+            // Aquí podrías abrir un modal de edición con los datos de la idea
+            alert('Editar idea con ID: ' + id);
+        }
+
+        function eliminarIdea(id) {
+            if (confirm('¿Estás seguro de eliminar esta idea?')) {
+                fetch(`/api/ideas/${id}`, { method: 'DELETE' })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Idea eliminada exitosamente');
+                            cargarIdeas(); // Recargar la lista
+                        } else {
+                            alert('Error al eliminar la idea');
+                        }
+                    })
+                    .catch(error => console.error('Error al eliminar la idea:', error));
+            }
+        }
+    </script>
 </body>
 </html>
+
