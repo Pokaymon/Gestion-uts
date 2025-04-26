@@ -1,14 +1,14 @@
 package com.gestion.uts;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
-@RestController
+@Controller
 public class WebController {
 
     @GetMapping("/")
     public String home() {
-        return "Bienvenido";
+        return "login";
     }
 
     @GetMapping("/estudiante")
