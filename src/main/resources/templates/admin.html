@@ -71,6 +71,99 @@
   </div>
 </div>
 
+<!-- Modal Crear Usuario -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="createUserModalLabel">Crear Nuevo Usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="createUserForm">
+          <div class="mb-3">
+            <label for="createCedula" class="form-label">Cédula</label>
+            <input type="text" class="form-control" id="createCedula" required>
+          </div>
+          <div class="mb-3">
+            <label for="createNombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="createNombre" required>
+          </div>
+          <div class="mb-3">
+            <label for="createApellido" class="form-label">Apellido</label>
+            <input type="text" class="form-control" id="createApellido" required>
+          </div>
+          <div class="mb-3">
+            <label for="createPassword" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="createPassword" required>
+          </div>
+          <div class="mb-3">
+            <label for="createRol" class="form-label">Rol</label>
+            <select class="form-select" id="createRol" required>
+              <option value="" disabled selected>Seleccione un rol</option>
+              <option value="estudiante">Estudiante</option>
+              <option value="administrador">Administrador</option>
+              <option value="director">Director</option>
+              <option value="evaluador">Evaluador</option>
+              <option value="coordinacion">Coordinación</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-success">Crear Usuario</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar Usuario -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="editUserModalLabel">Editar Usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="editUserForm">
+          <div class="mb-3">
+            <label for="editCedula" class="form-label">Cédula</label>
+            <input type="text" class="form-control" id="editCedula" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="editNombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="editNombre" required>
+          </div>
+          <div class="mb-3">
+            <label for="editApellido" class="form-label">Apellido</label>
+            <input type="text" class="form-control" id="editApellido" required>
+          </div>
+          <div class="mb-3">
+            <label for="editPassword" class="form-label">Contraseña (dejar vacío si no desea cambiarla)</label>
+            <input type="password" class="form-control" id="editPassword">
+          </div>
+          <div class="mb-3">
+            <label for="editRol" class="form-label">Rol</label>
+            <select class="form-select" id="editRol" required>
+              <option value="estudiante">Estudiante</option>
+              <option value="administrador">Administrador</option>
+              <option value="director">Director</option>
+              <option value="evaluador">Evaluador</option>
+              <option value="coordinacion">Coordinación</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/logout.js"></script>
 
@@ -128,6 +221,93 @@ function deleteUser(cedula) {
     .catch(error => console.error('Error:', error));
   }
 }
+
+function openCreateUserForm() {
+  const createModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+  createModal.show();
+}
+
+function editUser(cedula) {
+  fetch(`http://3.148.96.33:8129/users/${cedula}`)
+    .then(response => response.json())
+    .then(user => {
+      document.getElementById('editCedula').value = user.cedula;
+      document.getElementById('editNombre').value = user.nombre;
+      document.getElementById('editApellido').value = user.apellido;
+      document.getElementById('editRol').value = user.rol;
+      document.getElementById('editPassword').value = '';
+
+      const editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+      editModal.show();
+    })
+    .catch(error => console.error('Error al cargar usuario:', error));
+}
+
+// Enviar nuevo usuario
+document.getElementById('createUserForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  const data = {
+    cedula: document.getElementById('createCedula').value,
+    nombre: document.getElementById('createNombre').value,
+    apellido: document.getElementById('createApellido').value,
+    password: document.getElementById('createPassword').value,
+    rol: document.getElementById('createRol').value
+  };
+
+  fetch('http://3.148.96.33:8129/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(response => {
+    if (response.ok) {
+      alert('Usuario creado exitosamente');
+      document.getElementById('createUserForm').reset();
+      const createModal = bootstrap.Modal.getInstance(document.getElementById('createUserModal'));
+      createModal.hide();
+      openUserModal();
+    } else {
+      alert('Error al crear usuario');
+    }
+  })
+  .catch(error => console.error('Error:', error));
+});
+
+// Guardar cambios de usuario editado
+document.getElementById('editUserForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  const cedula = document.getElementById('editCedula').value;
+  const data = {
+    nombre: document.getElementById('editNombre').value,
+    apellido: document.getElementById('editApellido').value,
+    rol: document.getElementById('editRol').value
+  };
+
+  const password = document.getElementById('editPassword').value;
+  if (password.trim() !== '') {
+    data.password = password;
+  }
+
+  fetch(`http://3.148.96.33:8129/users/${cedula}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(response => {
+    if (response.ok) {
+      alert('Usuario actualizado correctamente');
+      document.getElementById('editUserForm').reset();
+      const editModal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+      editModal.hide();
+      openUserModal();
+    } else {
+      alert('Error al actualizar usuario');
+    }
+  })
+  .catch(error => console.error('Error:', error));
+});
 </script>
 
 </body>
