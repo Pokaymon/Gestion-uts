@@ -17,7 +17,7 @@ public class JwtUtil {
     public static String generateToken(String cedula, String rol) {
         return Jwts.builder()
                 .setSubject(cedula)
-                .claim("rol", rol)
+                .claim("rol", "ROLE_" + rol)  // Asegúrate de que el rol tenga el prefijo "ROLE_"
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hora
                 .signWith(KEY, SignatureAlgorithm.HS256)

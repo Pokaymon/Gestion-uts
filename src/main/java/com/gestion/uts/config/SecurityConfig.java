@@ -15,10 +15,10 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**", "/login", "/").permitAll()
-                .requestMatchers("/estudiante/**").hasAuthority("estudiante")
-                .requestMatchers("/coordinacion/**").hasAuthority("coordinacion")
-                .requestMatchers("/director/**").hasAuthority("director")
-                .requestMatchers("/evaluador/**").hasAuthority("evaluador")
+                .requestMatchers("/estudiante/**").hasRole("estudiante")
+                .requestMatchers("/coordinacion/**").hasRole("coordinacion")
+                .requestMatchers("/director/**").hasRole("director")
+                .requestMatchers("/evaluador/**").hasRole("evaluador")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(new JwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
