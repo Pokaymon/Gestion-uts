@@ -73,6 +73,84 @@
       </div>
     </div>
 
+<!-- Modal para Crear Idea -->
+<div class="modal fade" id="crearIdeaModal" tabindex="-1" aria-labelledby="crearIdeaModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="crearIdeaForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="crearIdeaModalLabel">Crear Nueva Idea</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+          <div class="mb-3">
+              <label for="tituloCrear" class="form-label">Título</label>
+              <input type="text" class="form-control" id="tituloCrear" required>
+          </div>
+          <div class="mb-3">
+              <label for="descripcionCrear" class="form-label">Descripción</label>
+              <textarea class="form-control" id="descripcionCrear" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+              <label for="tecnologiasCrear" class="form-label">Tecnologías</label>
+              <input type="text" class="form-control" id="tecnologiasCrear" required>
+          </div>
+          <div class="mb-3">
+              <label for="fechaPropuestaCrear" class="form-label">Fecha Propuesta</label>
+              <input type="date" class="form-control" id="fechaPropuestaCrear" required>
+          </div>
+          <div class="mb-3">
+              <label for="observacionesCrear" class="form-label">Observaciones</label>
+              <textarea class="form-control" id="observacionesCrear" rows="2"></textarea>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary">Guardar Idea</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para Editar Idea -->
+<div class="modal fade" id="editarIdeaModal" tabindex="-1" aria-labelledby="editarIdeaModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="editarIdeaForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editarIdeaModalLabel">Editar Idea</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+          <input type="hidden" id="idEditar">
+          <div class="mb-3">
+              <label for="tituloEditar" class="form-label">Título</label>
+              <input type="text" class="form-control" id="tituloEditar" required>
+          </div>
+          <div class="mb-3">
+              <label for="descripcionEditar" class="form-label">Descripción</label>
+              <textarea class="form-control" id="descripcionEditar" rows="3" required></textarea>
+          </div>
+          <div class="mb-3">
+              <label for="tecnologiasEditar" class="form-label">Tecnologías</label>
+              <input type="text" class="form-control" id="tecnologiasEditar" required>
+          </div>
+          <div class="mb-3">
+              <label for="fechaPropuestaEditar" class="form-label">Fecha Propuesta</label>
+              <input type="date" class="form-control" id="fechaPropuestaEditar" required>
+          </div>
+          <div class="mb-3">
+              <label for="observacionesEditar" class="form-label">Observaciones</label>
+              <textarea class="form-control" id="observacionesEditar" rows="2"></textarea>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-primary">Actualizar Idea</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
     <script src="/js/logout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -104,15 +182,85 @@
                 .catch(error => console.error('Error al cargar las ideas:', error));
         }
 
-        function crearIdea() {
-            // Aquí luego podrías abrir otro modal para crear una nueva idea
-            alert('Funcionalidad para crear idea próximamente...');
-        }
+    function crearIdea() {
+        const crearModal = new bootstrap.Modal(document.getElementById('crearIdeaModal'));
+        crearModal.show();
+    }
 
-        function editarIdea(id) {
-            // Aquí podrías abrir un modal de edición con los datos de la idea
-            alert('Editar idea con ID: ' + id);
-        }
+    function editarIdea(id) {
+        fetch(`/api/ideas/${id}`)
+            .then(response => response.json())
+            .then(idea => {
+                document.getElementById('idEditar').value = idea.id;
+                document.getElementById('tituloEditar').value = idea.titulo;
+                document.getElementById('descripcionEditar').value = idea.descripcion;
+                document.getElementById('tecnologiasEditar').value = idea.tecnologias;
+                document.getElementById('fechaPropuestaEditar').value = idea.fechaPropuesta;
+                document.getElementById('observacionesEditar').value = idea.observaciones;
+
+                const editarModal = new bootstrap.Modal(document.getElementById('editarIdeaModal'));
+                editarModal.show();
+            })
+            .catch(error => console.error('Error al cargar la idea:', error));
+    }
+
+    document.getElementById('crearIdeaForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const nuevaIdea = {
+            titulo: document.getElementById('tituloCrear').value,
+            descripcion: document.getElementById('descripcionCrear').value,
+            tecnologias: document.getElementById('tecnologiasCrear').value,
+            fechaPropuesta: document.getElementById('fechaPropuestaCrear').value,
+            observaciones: document.getElementById('observacionesCrear').value
+        };
+
+        fetch('/api/ideas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevaIdea)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Idea creada exitosamente');
+                cargarIdeas();
+                bootstrap.Modal.getInstance(document.getElementById('crearIdeaModal')).hide();
+            } else {
+                alert('Error al crear la idea');
+            }
+        })
+        .catch(error => console.error('Error al crear la idea:', error));
+    });
+
+    document.getElementById('editarIdeaForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const id = document.getElementById('idEditar').value;
+
+        const ideaActualizada = {
+            titulo: document.getElementById('tituloEditar').value,
+            descripcion: document.getElementById('descripcionEditar').value,
+            tecnologias: document.getElementById('tecnologiasEditar').value,
+            fechaPropuesta: document.getElementById('fechaPropuestaEditar').value,
+            observaciones: document.getElementById('observacionesEditar').value
+        };
+
+        fetch(`/api/ideas/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(ideaActualizada)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Idea actualizada exitosamente');
+                cargarIdeas();
+                bootstrap.Modal.getInstance(document.getElementById('editarIdeaModal')).hide();
+            } else {
+                alert('Error al actualizar la idea');
+            }
+        })
+        .catch(error => console.error('Error al actualizar la idea:', error));
+    });
 
         function eliminarIdea(id) {
             if (confirm('¿Estás seguro de eliminar esta idea?')) {
