@@ -61,10 +61,13 @@ document.querySelector('.login-form').addEventListener('submit', async function(
     const data = await response.json();
 
     if (data.token && data.rol) {
-        // Guarda token si deseas usarlo luego
+        // Guarda token en localStorage si lo necesitas más adelante
         localStorage.setItem('token', data.token);
         localStorage.setItem('nombre', data.nombre);
         localStorage.setItem('rol', data.rol);
+
+        // También guarda el token en una cookie para que Spring lo pueda leer
+        document.cookie = `token=${data.token}; path=/;`;
 
         // Redirecciona según el rol
         switch (data.rol.toLowerCase()) {

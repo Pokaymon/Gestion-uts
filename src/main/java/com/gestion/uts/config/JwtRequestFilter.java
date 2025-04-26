@@ -2,12 +2,11 @@ package com.gestion.uts.config;
 
 import com.gestion.uts.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -19,6 +18,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                 HttpServletResponse response,
                                 FilterChain filterChain) throws ServletException, IOException {
 
+        // Permitir el paso sin validación JWT en rutas públicas
+        String path = request.getRequestURI();
+        if (path.equals("/") || path.startsWith("/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = null;
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
@@ -29,7 +35,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         if (token == null) {
-            response.sendRedirect("/login");
+            response.sendRedirect("/");
             return;
         }
 
@@ -37,7 +43,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             Claims claims = JwtUtil.getClaims(token);
             request.setAttribute("claims", claims);
         } catch (Exception e) {
-            response.sendRedirect("/login");
+            response.sendRedirect("/");
             return;
         }
 

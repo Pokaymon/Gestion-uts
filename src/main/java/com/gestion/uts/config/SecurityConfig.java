@@ -11,27 +11,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        http
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/estudiante/**", "/coordinacion/**", "/director/**", "/evaluador/**").authenticated()
-                .anyRequest().permitAll()
+                .requestMatchers("/auth/**", "/login", "/").permitAll()
+                .requestMatchers("/estudiante/**").hasAuthority("estudiante")
+                .requestMatchers("/coordinacion/**").hasAuthority("coordinacion")
+                .requestMatchers("/director/**").hasAuthority("director")
+                .requestMatchers("/evaluador/**").hasAuthority("evaluador")
+                .anyRequest().authenticated()
             )
             .addFilterBefore(new JwtRequestFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+}
 
-    @Override
-protected void configure(HttpSecurity http) throws Exception {
-    http
-        .csrf().disable()
-        .authorizeRequests()
-            .antMatchers("/login", "/auth/login").permitAll()
-            .antMatchers("/estudiante/**").hasAnyAuthority("estudiante")
-            .antMatchers("/coordinacion/**").hasAnyAuthority("coordinacion")
-            .anyRequest().authenticated()
-        .and()
-        .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-}
-}
