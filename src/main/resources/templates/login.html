@@ -31,6 +31,54 @@
     </style>
 </head>
 <body>
+
+<script>
+document.querySelector('.login-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const cedula = document.getElementById('cedula').value;
+    const password = document.getElementById('password').value;
+
+    const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cedula, password })
+    });
+
+    const data = await response.json();
+
+    if (data.token && data.rol) {
+        // Guarda token si deseas usarlo luego
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('nombre', data.nombre);
+        localStorage.setItem('rol', data.rol);
+
+        // Redirecciona según el rol
+        switch (data.rol.toLowerCase()) {
+            case 'estudiante':
+                window.location.href = '/estudiante';
+                break;
+            case 'director':
+                window.location.href = '/director';
+                break;
+            case 'admin':
+                window.location.href = '/admin';
+                break;
+            case 'evaluador':
+                window.location.href = '/evaluador';
+                break;
+            case 'coordinacion':
+                window.location.href = '/coordinacion';
+                break;
+            default:
+                alert('Rol no reconocido');
+        }
+    } else {
+        alert('Credenciales inválidas');
+    }
+});
+</script>
+
     <form class="login-form">
         <h2 class="form-title">Iniciar Sesión</h2>
         <div class="mb-3">
