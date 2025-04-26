@@ -17,15 +17,21 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public Object login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         User user = userService.getUserByCedula(request.getCedula()).orElse(null);
-        if (user == null || !user.getPassword().equals(request.getPassword())) {
-            return "Credenciales inválidas";
-        }
+            if (user == null || !user.getPassword().equals(request.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
+            }
 
         String token = JwtUtil.generateToken(user.getCedula(), user.getRol());
 
-        return new LoginResponse("Bearer" + token, user.getRol(), user.getNombre());
+        Cookie cookie = new Cookie("token", token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(3600); // 1 hora
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(new LoginResponse("Bearer " + token, user.getRol(), user.getNombre()));
     }
 }
 
