@@ -13,26 +13,26 @@ public class WebController {
 
     @GetMapping("/estudiante")
     public String estudiante() {
-        return "Hola Estudiante";
+        return "estudiante";
     }
 
     @GetMapping("/director")
     public String director() {
-        return "Hola Director";
+        return "director";
     }
 
     @GetMapping("/admin")
     public String admin() {
-        return "Hola Admin";
+        return "admin";
     }
 
     @GetMapping("/evaluador")
     public String evaluador() {
-        return "Hola Evaluador";
+        return "evaluador";
     }
 
     @GetMapping("/coordinacion")
     public String coordinacion() {
-        return "Hola Coordinacion";
+        return "coordinacion";
     }
 }
