@@ -21,7 +21,7 @@ public class SecurityConfig {
         return http
             .csrf(csrf -> csrf.disable()) // Desactivamos CSRF para facilitar pruebas con Postman/Frontend
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/auth/login", "/static/**", "/templates/**").permitAll() // Públicas
+                .requestMatchers("/", "/auth/login","/users","/api/**", "/static/**", "/templates/**").permitAll() // Públicas
                 .anyRequest().authenticated() // Las demás protegidas
             )
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
